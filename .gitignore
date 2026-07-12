@@ -1,0 +1,7 @@
+# Build binaries
+/bin/
+
+# Local: never commit media, db
+/data/
+*.db
+.env

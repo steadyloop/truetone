@@ -1,0 +1,43 @@
+<!-- library.html — video grid + upload. Rendered by pages.go with .Videos.
+     Contract: .Videos = []{ID, Title, State, DurationS int, CreatedAt time.Time}.
+     Funcs: dur(int)→"52:10", thumb(id)→"t1".."t5". State != "ready" → placeholder card. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Truetone — Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Schibsted+Grotesk:wght@400;500;700&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="/"><span class="tone" aria-hidden="true"><i style="height:6px"></i><i style="height:12px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:13px"></i></span>Truetone</a>
+  <span class="sp"></span>
+  <form method="post" action="/upload" enctype="multipart/form-data">
+    <input id="file" name="file" type="file" accept="video/mp4" hidden>
+    <button id="uploadBtn" class="btn" type="button"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 10V2M6 2L2.5 5.5M6 2l3.5 3.5" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Upload</button>
+  </form>
+</nav>
+
+<main>
+  <h1>Library</h1>
+  <div class="grid">
+    {{- range .Videos}}
+    {{- if eq .State "ready"}}
+    <a href="/v/{{.ID}}"><div class="thumb {{thumb .ID}}"><span class="tone mark" aria-hidden="true"><i style="height:9px"></i><i style="height:6px"></i><i style="height:13px"></i><i style="height:10px"></i></span><span class="dur">{{dur .DurationS}}</span></div>
+      <div class="ct">{{.Title}}</div><div class="cm">{{.CreatedAt.Format "Jan 2"}}</div></a>
+    {{- else}}
+    <div><div class="proc"><span class="tone live" aria-hidden="true"><i style="height:7px"></i><i style="height:13px"></i><i style="height:16px"></i><i style="height:10px"></i><i style="height:14px"></i></span><span>Transcoding</span></div>
+      <div class="ct" style="color:var(--mut)">{{.Title}}</div><div class="cm">Processing…</div></div>
+    {{- end}}
+    {{- else}}
+    <p class="cm">No videos yet — hit Upload to add one.</p>
+    {{- end}}
+  </div>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

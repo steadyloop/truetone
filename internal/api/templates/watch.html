@@ -1,0 +1,33 @@
+<!-- watch.html — player page. Rendered by pages.go with one video.
+     Contract: . = {ID, Title, DurationS int, CreatedAt time.Time}. Func: dur(int).
+     app.js reads data-src and attaches hls.js (or native HLS on Safari). -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Truetone — {{.Title}}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Schibsted+Grotesk:wght@400;500;700&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="/"><span class="tone" aria-hidden="true"><i style="height:6px"></i><i style="height:12px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:13px"></i></span>Truetone</a>
+  <span class="sp"></span>
+  <a class="btn" href="/">Library</a>
+</nav>
+
+<main>
+  <div class="eyebrow">Watch</div>
+  <div class="player">
+    <video id="video" class="video" controls playsinline data-src="/media/{{.ID}}/master.m3u8"></video>
+  </div>
+  <div class="wt">{{.Title}}</div>
+  <div class="wm">{{dur .DurationS}} · {{.CreatedAt.Format "Jan 2"}}</div>
+</main>
+
+<script src="/static/hls.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
