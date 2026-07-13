@@ -1,26 +1,21 @@
 // internal/web/server.go
+// Defines the backend that uses the filesystem for content, sqlite fo metadata
 package web
 
 import (
+	"html/template"
 	"net"
 	"net/http"
 )
 
 type server struct {
-	metadataService VideoMetadataService
-	contentService  VideoContentService
-	mux             *http.ServeMux
+	Metadata MetadataStore
+	Content  ContentStore
+	mux      *http.ServeMux
 }
 
-// video is the shape indexHTML expects per item ({{.EscapedId}}, {{.Id}}, {{.UploadTime}}).
-type video struct {
-	Id         string
-	EscapedId  string
-	UploadTime string
-}
-
-func NewServer(metadataService VideoMetadataService, contentService VideoContentService) *server {
-	return &server{metadataService: metadataService, contentService: contentService}
+func NewServer(metadata MetadataStore, content ContentStore) *server {
+	return &server{Metadata: metadata, Content: content}
 }
 
 func (s *server) Start(lis net.Listener) error {
@@ -32,11 +27,17 @@ func (s *server) Start(lis net.Listener) error {
 	return http.Serve(lis, s.mux)
 }
 
-// GET / — render indexHTML (text/template over the const in templates.go) with []video
-// from metadataService.List(). EscapedId = url.PathEscape(id). 200 on success, 500 on error.
+// GET / - Renders the home screen (index), with []content from metadata.List()
 func (s *server) handleIndex(w http.ResponseWriter, r *http.Request) {
-	// TODO
-	http.Error(w, "not implemented", http.StatusNotImplemented)
+	metadata, err := s.Metadata.List()
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+	tmpl := template.Must(template.New("index").Parse(indexHTML))
+	if err := tmpl.Execute(w, metadata); err != nil {
+		http.Error(w, "render error", http.StatusInternalServerError)
+	}
 }
 
 // POST /upload — multipart field "file". Video ID = filename minus ".mp4".

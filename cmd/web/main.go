@@ -7,48 +7,47 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/steadyloop/truetone/internal/web"
+	"gopkg.in/yaml.v3"
 )
 
-func printUsage() {
-	fmt.Println("Usage: ./program [OPTIONS] METADATA_TYPE METADATA_OPTIONS CONTENT_TYPE CONTENT_OPTIONS")
-	fmt.Println()
-	fmt.Println("Arguments:")
-	fmt.Println("  METADATA_TYPE         Metadata service type (sqlite)")
-	fmt.Println("  METADATA_OPTIONS      Options for metadata service (e.g., db path)")
-	fmt.Println("  CONTENT_TYPE          Content service type (fs)")
-	fmt.Println("  CONTENT_OPTIONS       Options for content service (e.g., base dir)")
-	fmt.Println()
-	fmt.Println("Options:")
-	flag.PrintDefaults()
-	fmt.Println()
-	fmt.Println("Example: ./program sqlite db.db fs /path/to/videos")
+type Config struct {
+	Host     string `yaml:"host"`
+	Metadata struct {
+		Type string `yaml:"type"`
+		Opts string `yaml:"options"`
+	} `yaml:"metadata"`
+	Content struct {
+		Type string `yaml:"type"`
+		Opts string `yaml:"options"`
+	} `yaml:"content"`
 }
 
 func main() {
-	// 1. Flags for the web cli
-	port := flag.Int("port", 8080, "Port number for the web server")
-	host := flag.String("host", "localhost", "Host address for the web server")
-	flag.Usage = printUsage
+	// Optional path to config file
+	configPath := flag.String("config", "", "path to config file")
 	flag.Parse()
-	if len(flag.Args()) != 4 {
-		fmt.Println("Error: Incorrect number of arguments")
-		printUsage()
+	if len(flag.Args()) > 1 {
+		flag.PrintDefaults()
 		return
 	}
-	metadataServiceType, metadataServiceOptions := flag.Arg(0), flag.Arg(1)
-	contentServiceType, contentServiceOptions := flag.Arg(2), flag.Arg(3)
-	if *port <= 0 {
-		fmt.Println("Error: Invalid port number:", *port)
-		printUsage()
+	data, err := os.ReadFile(*configPath)
+	if err != nil {
+		fmt.Errorf("failed to read config file: ", err)
 		return
+	}
+	var cfg Config
+	err = yaml.Unmarshal(data, &cfg)
+	if err != nil {
+		fmt.Errorf("failed to load config file: ", err)
 	}
 
-	// 2. Metadata service
-	var metadataService web.VideoMetadataService
-	fmt.Println("Creating metadata service of type", metadataServiceType, "with options", metadataServiceOptions)
-	switch metadataServiceType {
+	// 2. Setup scheme to setup metadata
+	var metadataService web.MetadataStore
+	fmt.Println("Creating metadata service of type", cfg.Metadata.Type, "with options", cfg.Metadata.Opts)
+	switch cfg.Metadata.Type {
 	case "sqlite":
 		svc, err := web.NewSQLiteVideoMetadataService(metadataServiceOptions)
 
