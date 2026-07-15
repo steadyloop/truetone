@@ -1,11 +1,10 @@
 // Webserver CLI ./cmd/web/main.go
-// Run: mkdir -p storage && go run ./cmd/web -port 8080 sqlite ./metadata.db fs ./storage
-
 package main
 
 import (
 	"flag"
 	"fmt"
+	"log/slog"
 	"net"
 	"os"
 
@@ -13,78 +12,76 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Config struct {
+type config struct {
 	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
 	Metadata struct {
-		Type string `yaml:"type"`
-		Opts string `yaml:"options"`
+		Backend string `yaml:"backend"`
+		Opts    string `yaml:"options"`
 	} `yaml:"metadata"`
 	Content struct {
-		Type string `yaml:"type"`
-		Opts string `yaml:"options"`
+		Backend string `yaml:"backend"`
+		Opts    string `yaml:"options"`
 	} `yaml:"content"`
 }
 
 func main() {
-	// Optional path to config file
-	configPath := flag.String("config", "", "path to config file")
+	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	// 1. Resolve config file
+	configPath := flag.String("config", "config.yaml", "path to config file")
 	flag.Parse()
-	if len(flag.Args()) > 1 {
-		flag.PrintDefaults()
-		return
+	if len(flag.Args()) > 0 {
+		flag.Usage()
+		os.Exit(2)
 	}
 	data, err := os.ReadFile(*configPath)
 	if err != nil {
-		fmt.Errorf("failed to read config file: ", err)
-		return
+		logger.Error("failed to read config", "path", *configPath, "error", err)
+		os.Exit(1)
 	}
-	var cfg Config
-	err = yaml.Unmarshal(data, &cfg)
-	if err != nil {
-		fmt.Errorf("failed to load config file: ", err)
+	var config config
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		logger.Error("failed to parse config", "path", *configPath, "error", err)
+		os.Exit(1)
 	}
-
-	// 2. Setup scheme to setup metadata
-	var metadataService web.MetadataStore
-	fmt.Println("Creating metadata service of type", cfg.Metadata.Type, "with options", cfg.Metadata.Opts)
-	switch cfg.Metadata.Type {
+	// 2. Establish metadata backend scheme
+	var metadata web.MetadataStore
+	logger.Info("establishing metadata backend", "backend", config.Metadata.Backend, "opts", config.Metadata.Opts)
+	switch config.Metadata.Backend {
 	case "sqlite":
-		svc, err := web.NewSQLiteVideoMetadataService(metadataServiceOptions)
-
-		// metadataService = web.NewSQLiteVideoMetadataService(metadataServiceOptions)
-		// TODO: metadataService = web.NewSQLiteVideoMetadataService(metadataServiceOptions) (handle the error)
+		store, err := web.NewSQLiteMetadataStore(config.Metadata.Opts)
+		if err != nil {
+			logger.Error("failed to create sqlite metadata store", "error", err)
+			os.Exit(1)
+		}
+		metadata = store
 	default:
-		fmt.Printf("Unsupported metadata service: %s\n", metadataServiceType)
-		return
+		logger.Error("unsupported metadata backend", "backend", config.Metadata.Backend)
+		os.Exit(1)
 	}
-
-	// 3. Content service
-	var contentService web.VideoContentService
-	fmt.Println("Creating content service of type", contentServiceType, "with options", contentServiceOptions)
-	switch contentServiceType {
+	// 3. Establish content backend scheme
+	var content web.ContentStore
+	logger.Info("establishing content backend", "backend", config.Content.Backend, "opts", config.Content.Opts)
+	switch config.Content.Backend {
 	case "fs":
-		// TODO: contentService = web.NewFSVideoContentService(contentServiceOptions)
+		content = web.NewFileSystemStore(config.Content.Opts)
 	default:
-		fmt.Printf("Unsupported content service: %s\n", contentServiceType)
-		return
+		logger.Error("unsupported content backend", "backend", config.Content.Backend)
+		os.Exit(1)
 	}
-
-	if metadataService == nil || contentService == nil {
-		fmt.Println("Services not constructed yet — finish the TODOs in the two switches above.")
-		return
-	}
-
-	// Start the server
-	server := web.NewServer(metadataService, contentService)
-	listenAddr := fmt.Sprintf("%s:%d", *host, *port)
+	// 4. Start the server
+	server := web.NewServer(metadata, content)
+	listenAddr := fmt.Sprintf("%s:%d", config.Host, config.Port)
 	lis, err := net.Listen("tcp", listenAddr)
 	if err != nil {
-		fmt.Println("Error starting listener:", err)
-		return
+		logger.Error("failed to start listener", "address", listenAddr, "error", err)
+		os.Exit(1)
 	}
 	defer lis.Close()
-	fmt.Println("Starting web server on", listenAddr)
+	logger.Info("starting web server", "address", listenAddr)
 	if err := server.Start(lis); err != nil {
-		fmt.Println("Error starting server:", err)
+		logger.Error("server error", "error", err)
+		os.Exit(1)
 	}
 }
