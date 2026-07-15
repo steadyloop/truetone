@@ -9,30 +9,17 @@
 - Updated schema to include title (in interfaces.go as well as sqlite.go)
 - Implemented Create, List, Read
 
-## 2. Content store — `internal/web/fs.go`  (local filesystem)
-- [ ] `Write` — `os.MkdirAll(baseDir/videoId)` then `os.WriteFile(.../filename)`
-- [ ] `Read` — `os.ReadFile(baseDir/videoId/filename)`
-- [ ] uncomment interface assertion
+### [x] 2. Content store — `internal/web/fs.go`  (fs)
+- implemented Write, Read - -07/14/2026
 
-## 3. Wiring — `cmd/web/main.go`
-- [ ] `case "sqlite":` → build metadata service (handle the error)
-- [ ] `case "fs":` → build content service
+### [ ] 3. Wiring — `cmd/web/main.go`
+- handled selection of metadata service (sqlite), content service (fs), and config file scheme. -07/15/2026
 - [ ] checkpoint: `go build ./...` compiles and boots
 
-## 4. HTTP handlers — `internal/web/server.go`  (simplest first)
-- [ ] `handleVideoContent`  GET `/content/{id}/{file}` — Read bytes → body; 500 on err
-- [ ] `handleIndex`         GET `/` — `List()` → render `indexHTML`; `EscapedId = url.PathEscape(id)`
-- [ ] `handleVideo`         GET `/videos/{id}` — `Read(id)`; 404 if nil; else render `videoHTML`
-- [ ] `handleUpload`        POST `/upload` — see breakdown below
+### [ ] 4. HTTP handlers — `internal/web/server.go`  (simplest first)
+- Implemented handleContent, handleIndex, handleWatch, handleUpload (07/14/2026)
 
-### handleUpload steps
-- [ ] `r.FormFile("file")` — 400 if missing
-- [ ] video id = filename minus `.mp4`
-- [ ] `Read(id)` to reject dupes — 409 if exists
-- [ ] save upload to temp dir (`os.MkdirTemp`)
-- [ ] run ffmpeg → DASH (command in lab7.md)
-- [ ] `contentService.Write` each output file (`manifest.mpd` + `.m4s`)
-- [ ] `metadataService.Create` then 303 redirect to `/`
+
 
 ---
 
@@ -40,6 +27,9 @@
 1. Read up on errors on Go
 2. Read up on sql on Go
     https://pkg.go.dev/database/sql#DB
+3. Read up on structured logging (log/slog) — main.go, 07/15/2026
+    - Idea: Why key-value instead of fmt.Println? Structured logs allow querying/scaling by making it grep/parseable.
+    - https://pkg.go.dev/log/slog
 
 ---
 
@@ -48,7 +38,3 @@
 - [ ] click it → plays via dash.js
 - [ ] re-upload same name → 409 · no file field → 400
 - [ ] `metadata.db` + `storage/<id>/manifest.mpd` exist on disk
-
-## Deps / notes
-- [ ] `ffmpeg` installed (`brew install ffmpeg`)
-- go-sqlite3 is cgo (needs C compiler — you have clang)

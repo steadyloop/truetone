@@ -6,22 +6,22 @@ import (
 	"path/filepath"
 )
 
-// FSVideoContentService implements VideoContentService using the local filesystem.
-// Files live at {baseDir}/{videoId}/{filename}.
+// FileSystemStore uses file systems to implement ContentStore.
+// Files live at {base}/{id}/{filename}.
 type FileSystemStore struct {
-	baseDir string
+	base string
 }
 
-// Uncomment the following line to ensure FSVideoContentService implements VideoContentService
+// Ensures FileSystemStore implements ContentStore
 var _ ContentStore = (*FileSystemStore)(nil)
 
-func NewFSVideoContentService(path string) *FileSystemStore {
-	return &FileSystemStore{baseDir: path}
+func NewFileSystemStore(path string) *FileSystemStore {
+	return &FileSystemStore{base: path}
 }
 
-// Read returns the contents of {baseDir}/{id}/{filename}.
+// Read returns the contents of {base}/{id}/{filename}.
 func (s *FileSystemStore) Read(id string, filename string) ([]byte, error) {
-	path := filepath.Join(s.baseDir, id, filename)
+	path := filepath.Join(s.base, id, filename)
 	video, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file %s: %w", path, err)
@@ -29,10 +29,10 @@ func (s *FileSystemStore) Read(id string, filename string) ([]byte, error) {
 	return video, nil
 }
 
-// Write writes data to {baseDir}/{videoId}/{filename}, creating the video's directory if needed.
+// Write writes data to {base}/{id}/{filename}, creating the video's directory if needed.
 func (s *FileSystemStore) Write(id string, filename string, data []byte) error {
 	// 1. Creates directory with corresponding id
-	path := filepath.Join(s.baseDir, id)
+	path := filepath.Join(s.base, id)
 	if err := os.MkdirAll(path, 0755); err != nil {
 		return fmt.Errorf("failed to create directory %s: %w", path, err)
 	}

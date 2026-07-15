@@ -1,5 +1,5 @@
 <!-- watch.html — player page. Rendered by pages.go with one video.
-     Contract: . = {ID, Title, DurationS int, CreatedAt time.Time}. Func: dur(int).
+     Contract: . = {ID, Title, DurationS int, UploadedAt time.Time}. Func: dur(int).
      app.js reads data-src and attaches hls.js (or native HLS on Safari). -->
 <!doctype html>
 <html lang="en">
@@ -13,7 +13,7 @@
 <body>
 
 <nav class="nav">
-  <a class="brand" href="/"><span class="tone" aria-hidden="true"><i style="height:6px"></i><i style="height:12px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:13px"></i></span>Truetone</a>
+  {{template "brand" .}}
   <span class="sp"></span>
   <a class="btn" href="/">Library</a>
 </nav>
@@ -21,10 +21,10 @@
 <main>
   <div class="eyebrow">Watch</div>
   <div class="player">
-    <video id="video" class="video" controls playsinline data-src="/media/{{.ID}}/master.m3u8"></video>
+    <video id="video" class="video" controls playsinline data-src="/content/{{.ID}}/master.m3u8"></video>
   </div>
   <div class="wt">{{.Title}}</div>
-  <div class="wm">{{dur .DurationS}} · {{.CreatedAt.Format "Jan 2"}}</div>
+  <div class="wm">{{dur .DurationS}} · {{.UploadedAt.Format "Jan 2"}}</div>
 </main>
 
 <script src="/static/hls.min.js"></script>

@@ -6,15 +6,18 @@ package web
 import "time"
 
 type Metadata struct {
-	Id         string
+	ID         string
+	State      string
 	Title      string
+	DurationS  int
 	UploadedAt time.Time
 }
 
 type MetadataStore interface {
-	Read(id string) (*Metadata, error)
-	List() ([]Metadata, error)
 	Create(id, title string, uploadedAt time.Time) error
+	List() ([]Metadata, error)
+	Read(id string) (*Metadata, error)
+	MarkReady(id string, seconds int) error
 }
 
 type ContentStore interface {
