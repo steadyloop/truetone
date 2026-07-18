@@ -1,5 +1,6 @@
-<!-- library.html — video grid + upload. Rendered by pages.go with .Videos.
-     Contract: .Videos = []{ID, Title, State, DurationS int, UploadedAt time.Time}.
+<!-- library.html — video grid + upload. Rendered by handleIndex (server.go)
+     with the raw []Metadata slice as data — no wrapper struct.
+     Contract: . = []{ID, Title, State, DurationS int, UploadedAt time.Time}.
      Funcs: dur(int)→"52:10", thumb(id)→"t1".."t5". State != "ready" → placeholder card. -->
 {{define "brand"}}<a class="brand" href="/"><span class="tone" aria-hidden="true"><i style="height:6px"></i><i style="height:12px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:13px"></i></span>Truetone</a>{{end}}
 <!doctype html>
@@ -25,7 +26,7 @@
 <main>
   <h1>Library</h1>
   <div class="grid">
-    {{- range .Videos}}
+    {{- range .}}
     {{- if eq .State "ready"}}
     <a href="/watch/{{.ID}}"><div class="thumb {{thumb .ID}}"><span class="tone mark" aria-hidden="true"><i style="height:9px"></i><i style="height:6px"></i><i style="height:13px"></i><i style="height:10px"></i></span><span class="dur">{{dur .DurationS}}</span></div>
       <div class="ct">{{.Title}}</div><div class="cm">{{.UploadedAt.Format "Jan 2"}}</div></a>

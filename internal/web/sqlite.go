@@ -48,7 +48,7 @@ func NewSQLiteMetadataStore(path string) (*SQLiteMetadataStore, error) {
 
 // Create saves a new entry. A duplicate video ID must return an error (handler turns it into 409).
 func (s *SQLiteMetadataStore) Create(id, title string, uploadedAt time.Time) (err error) {
-	_, err = s.db.Exec("INSERT INTO videos (id, title, uploaded_at, state) VALUES (?, ?, ?, ?)", id, title, uploadedAt.UTC(), "processing")
+	_, err = s.db.Exec("INSERT INTO videos (id, title, uploaded_at, state) VALUES (?, ?, ?, ?)", id, title, uploadedAt.UTC(), Processing)
 	if err != nil {
 		return fmt.Errorf("failed to insert video: %w", err)
 	}
@@ -95,9 +95,18 @@ func (s *SQLiteMetadataStore) Read(id string) (*Metadata, error) {
 // MarkReady transitions a video from "processing" to "ready" once transcoding
 // finishes, recording its duration.
 func (s *SQLiteMetadataStore) MarkReady(id string, seconds int) error {
-	_, err := s.db.Exec("UPDATE videos SET state = ?, seconds = ? WHERE id = ?", "ready", seconds, id)
+	_, err := s.db.Exec("UPDATE videos SET state = ?, seconds = ? WHERE id = ?", Ready, seconds, id)
 	if err != nil {
 		return fmt.Errorf("failed to mark video ready: %w", err)
+	}
+	return nil
+}
+
+// MarkFailed transitions a video to "failed" after a transcode error.
+func (s *SQLiteMetadataStore) MarkFailed(id string) error {
+	_, err := s.db.Exec("UPDATE videos SET state = ? WHERE id = ?", Failed, id)
+	if err != nil {
+		return fmt.Errorf("failed to mark video failed: %w", err)
 	}
 	return nil
 }

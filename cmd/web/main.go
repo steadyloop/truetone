@@ -13,6 +13,7 @@ import (
 )
 
 type config struct {
+	TempDir  string
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	Metadata struct {
@@ -27,8 +28,7 @@ type config struct {
 
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
-
-	// 1. Resolve config file
+	// 0. Resolve config file
 	configPath := flag.String("config", "config.yaml", "path to config file")
 	flag.Parse()
 	if len(flag.Args()) > 0 {
@@ -45,6 +45,9 @@ func main() {
 		logger.Error("failed to parse config", "path", *configPath, "error", err)
 		os.Exit(1)
 	}
+	// 1. Establish temp directory for the server
+	tempDir := config.TempDir
+	os.MkdirAll(tempDir, 0755)
 	// 2. Establish metadata backend scheme
 	var metadata web.MetadataStore
 	logger.Info("establishing metadata backend", "backend", config.Metadata.Backend, "opts", config.Metadata.Opts)
@@ -71,7 +74,7 @@ func main() {
 		os.Exit(1)
 	}
 	// 4. Start the server
-	server := web.NewServer(metadata, content)
+	server := web.NewServer(metadata, content, tempDir)
 	listenAddr := fmt.Sprintf("%s:%d", config.Host, config.Port)
 	lis, err := net.Listen("tcp", listenAddr)
 	if err != nil {
