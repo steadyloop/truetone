@@ -5,9 +5,17 @@ package web
 
 import "time"
 
+type State string
+
+const (
+	Processing State = "processing"
+	Ready      State = "ready"
+	Failed     State = "failed"
+)
+
 type Metadata struct {
 	ID         string
-	State      string
+	State      State
 	Title      string
 	DurationS  int
 	UploadedAt time.Time
@@ -18,6 +26,7 @@ type MetadataStore interface {
 	List() ([]Metadata, error)
 	Read(id string) (*Metadata, error)
 	MarkReady(id string, seconds int) error
+	MarkFailed(id string) error
 }
 
 type ContentStore interface {

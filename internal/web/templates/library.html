@@ -17,10 +17,7 @@
 <nav class="nav">
   {{template "brand" .}}
   <span class="sp"></span>
-  <form method="post" action="/upload" enctype="multipart/form-data">
-    <input id="file" name="file" type="file" accept="video/mp4" hidden>
-    <button id="uploadBtn" class="btn" type="button"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 10V2M6 2L2.5 5.5M6 2l3.5 3.5" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Upload</button>
-  </form>
+  <a class="btn" href="/upload"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 10V2M6 2L2.5 5.5M6 2l3.5 3.5" stroke="#FFFDF6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Upload</a>
 </nav>
 
 <main>
@@ -28,7 +25,7 @@
   <div class="grid">
     {{- range .}}
     {{- if eq .State "ready"}}
-    <a href="/watch/{{.ID}}"><div class="thumb {{thumb .ID}}"><span class="tone mark" aria-hidden="true"><i style="height:9px"></i><i style="height:6px"></i><i style="height:13px"></i><i style="height:10px"></i></span><span class="dur">{{dur .DurationS}}</span></div>
+    <a href="/watch/{{.ID}}"><div class="thumb"><img src="/content/{{.ID}}/thumb.jpg" alt=""><span class="tone mark" aria-hidden="true"><i style="height:9px"></i><i style="height:6px"></i><i style="height:13px"></i><i style="height:10px"></i></span><span class="dur">{{dur .DurationS}}</span></div>
       <div class="ct">{{.Title}}</div><div class="cm">{{.UploadedAt.Format "Jan 2"}}</div></a>
     {{- else}}
     <div><div class="proc"><span class="tone live" aria-hidden="true"><i style="height:7px"></i><i style="height:13px"></i><i style="height:16px"></i><i style="height:10px"></i><i style="height:14px"></i></span><span>Transcoding</span></div>

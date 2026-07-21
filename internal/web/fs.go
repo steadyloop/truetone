@@ -16,6 +16,7 @@ type FileSystemStore struct {
 var _ ContentStore = (*FileSystemStore)(nil)
 
 func NewFileSystemStore(path string) *FileSystemStore {
+	os.MkdirAll(path, 0755)
 	return &FileSystemStore{base: path}
 }
 

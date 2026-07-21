@@ -1,0 +1,31 @@
+<!-- upload.html — dedicated upload page. Rendered by handleUploadPage (server.go), no data.
+     Submits to POST /upload; handleUpload falls back to the filename if title is blank. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Truetone — Upload</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Schibsted+Grotesk:wght@400;500;700&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  {{template "brand" .}}
+  <span class="sp"></span>
+  <a class="btn" href="/">Library</a>
+</nav>
+
+<main>
+  <div class="eyebrow">Upload</div>
+  <form class="upload" method="post" action="/upload" enctype="multipart/form-data">
+    <input name="file" type="file" accept="video/mp4" required>
+    <input name="title" type="text" placeholder="Title">
+    <button class="btn" type="submit">Upload</button>
+  </form>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

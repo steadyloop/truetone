@@ -1,17 +1,14 @@
 // Truetone frontend behavior — two tiny bits, both no-op when their element is absent.
 
-// Library: nav Upload button opens the hidden file input, then auto-submits and
-// flips to "Transcoding…" (phase-0 transcode is synchronous, so the page waits).
-const file = document.getElementById("file");
-const btn = document.getElementById("uploadBtn");
-if (file && btn) {
-  btn.onclick = () => file.click();
-  file.onchange = () => {
-    if (!file.files.length) return;
+// Upload page: on submit, disable the button and show progress (processing
+// happens in the background after that; the redirect lands back on the library).
+const uploadForm = document.querySelector(".upload");
+if (uploadForm) {
+  uploadForm.addEventListener("submit", () => {
+    const btn = uploadForm.querySelector("button[type=submit]");
     btn.textContent = "Transcoding…";
     btn.disabled = true;
-    file.form.submit();
-  };
+  });
 }
 
 // Watch: attach HLS to the <video>. Safari plays it natively; everyone else uses hls.js.

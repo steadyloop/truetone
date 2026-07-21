@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -28,6 +30,9 @@ var _ MetadataStore = (*SQLiteMetadataStore)(nil)
 // │ uploaded_at  DATETIME  NOT NULL  │
 // └──────────────────────────────────┘
 func NewSQLiteMetadataStore(path string) (*SQLiteMetadataStore, error) {
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return nil, fmt.Errorf("failed to create database directory: %w", err)
+	}
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
@@ -37,8 +42,8 @@ func NewSQLiteMetadataStore(path string) (*SQLiteMetadataStore, error) {
 		id TEXT PRIMARY KEY,
 		title TEXT NOT NULL,
 		state TEXT NOT NULL,
-		seconds INT,
-		uploaded_at DATETIME NOT NULL	
+		seconds INT NOT NULL DEFAULT 0,
+		uploaded_at DATETIME NOT NULL
 		);`
 	if _, err := db.Exec(query); err != nil {
 		return nil, fmt.Errorf("failed to execute query: %w", err)
@@ -102,6 +107,7 @@ func (s *SQLiteMetadataStore) MarkReady(id string, seconds int) error {
 	return nil
 }
 
+// CHECK
 // MarkFailed transitions a video to "failed" after a transcode error.
 func (s *SQLiteMetadataStore) MarkFailed(id string) error {
 	_, err := s.db.Exec("UPDATE videos SET state = ? WHERE id = ?", Failed, id)
