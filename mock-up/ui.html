@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Changed files</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      color: #282d33;
+      background: #d5d5d0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 26px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .window {
+      position: relative;
+      margin-left: 38px;
+      min-height: 100vh;
+      background: white;
+      box-shadow: -1px 0 #929590, -15px 0 28px rgba(0, 0, 0, .16);
+      overflow: hidden;
+    }
+    .top-edge {
+      height: 10px;
+      border-bottom: 2px solid #e0e3e6;
+      background: #fff;
+    }
+    .top-edge::before {
+      content: "";
+      display: block;
+      width: 71.8%;
+      height: 6px;
+      margin-top: 2px;
+      background: #0865d5;
+    }
+    .toolbar { height: 116px; background: #f5f7f9; padding-top: 10px; }
+    .filter {
+      display: flex;
+      height: 50px;
+      margin-left: 20px;
+      border: 2px solid #8a949d;
+      border-right: 0;
+      border-radius: 13px 0 0 13px;
+      overflow: hidden;
+      background: white;
+    }
+    .filter-button {
+      flex: 0 0 96px;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      gap: 8px;
+      border-right: 2px solid #8a949d;
+      background: #f5f7f9;
+    }
+    .filter-icon { width: 32px; height: 24px; }
+    .arrow { width: 0; height: 0; border: 8px solid transparent; border-bottom: 0; border-top-color: #282d33; }
+    .filter-label { display: flex; align-items: center; padding-left: 10px; color: #6c7682; }
+    .summary { display: flex; align-items: center; height: 56px; gap: 14px; padding-left: 20px; }
+    .check {
+      position: relative;
+      display: inline-block;
+      flex: 0 0 26px;
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      background: #2687ff;
+    }
+    .check::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 2px;
+      width: 8px;
+      height: 17px;
+      border: solid white;
+      border-width: 0 4px 4px 0;
+      transform: rotate(39deg);
+    }
+    .files { margin: 0; padding: 0; list-style: none; }
+    .file {
+      display: flex;
+      align-items: center;
+      height: 58px;
+      padding-left: 20px;
+      gap: 14px;
+      border-bottom: 2px solid #e0e3e6;
+      white-space: nowrap;
+    }
+    .file.selected { height: 60px; background: #0864d3; color: white; border-top: 2px solid #e0e3e6; }
+    .directory { color: #6b7581; }
+    .empty { min-height: max(270px, calc(100vh - 1230px)); border-left: 2px solid #2687ff; }
+  </style>
+</head>
+<body>
+  <main class="window" aria-label="Changed files">
+    <div class="top-edge"></div>
+    <div class="toolbar">
+      <div class="filter">
+        <div class="filter-button" aria-hidden="true">
+          <svg class="filter-icon" viewBox="0 0 32 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M1.5 3.5h29M8 11.5h16M13 19.5h6"/></svg>
+          <span class="arrow"></span>
+        </div>
+        <span class="filter-label">Filter</span>
+      </div>
+      <div class="summary"><span class="check" aria-hidden="true"></span><span>19 changed files</span></div>
+    </div>
+    <ul class="files">
+      <li class="file selected"><span class="check"></span><span>.gitignore</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/transcode/</span>transcode.go</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/</span>interfaces.go</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/</span>server.go</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/</span>server_test.go</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/</span>sqlite.go</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/static/</span>app.js</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/static/</span>feed-core.mjs</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/static/fonts/</span>TikTokSans-OFL.txt</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/static/fonts/</span>TikTokSans36pt-Black.woff2</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/static/</span>style.css</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/</span>templates.go</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/templates/</span>common.html</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/templates/</span>library.html</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/templates/</span>upload.html</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">internal/web/templates/</span>watch.html</span></li>
+      <li class="file"><span class="check"></span><span>package-lock.json</span></li>
+      <li class="file"><span class="check"></span><span>package.json</span></li>
+      <li class="file"><span class="check"></span><span><span class="directory">tests/</span>feed.test.mjs</span></li>
+    </ul>
+    <div class="empty"></div>
+  </main>
+</body>
+</html>
